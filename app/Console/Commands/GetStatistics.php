@@ -7,7 +7,7 @@ use App\Models\Countries;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
-
+use Carbon\Carbon;
 class GetStatistics extends Command
 {
     /**
@@ -41,11 +41,13 @@ class GetStatistics extends Command
      */
     public function handle(Request $request)
     {
+        $currentDate = Carbon::now()->format('Y-m-d');
+
         $countries = DB::table('countries')->select('code','id')->get();
 
         $key1 = $request->header('x-rapidapi-key','5ae68dc990msh5919769237f8750p1c0933jsnf43267b9251b');
         $key2 = $request->header('x-rapidapi-host','covid-19-data.p.rapidapi.com');
-        $par2 = $request->input('date',"2021-08-29");
+        $par2 = $request->input('date',$currentDate);
 
 
         foreach ($countries as $value) {
@@ -56,13 +58,14 @@ class GetStatistics extends Command
                 'x-rapidapi-key' => $key1,
                 'x-rapidapi-host' => $key2,
             ])->get('https://covid-19-data.p.rapidapi.com/country/code?code='.$par1.'&date='.$par2)->json();
+            dump($data) ;
             DB::table('statistics')->updateOrInsert([
                 'country_id' => $value->id,
                 'confirmed'  => $data[0]['confirmed'],
                 'recovered' =>  $data[0]['recovered'],
                 'death' => $data[0]['deaths']
             ]);
-            sleep(1);
+            sleep(2);
         }
 
 
