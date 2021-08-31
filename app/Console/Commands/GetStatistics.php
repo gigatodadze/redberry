@@ -41,21 +41,29 @@ class GetStatistics extends Command
      */
     public function handle(Request $request)
     {
+        $countries = DB::table('countries')->select('code','id')->get();
+
         $key1 = $request->header('x-rapidapi-key','5ae68dc990msh5919769237f8750p1c0933jsnf43267b9251b');
         $key2 = $request->header('x-rapidapi-host','covid-19-data.p.rapidapi.com');
-        $par1 = $request->input('code',"ITA");
         $par2 = $request->input('date',"2021-08-29");
 
-        $data = Http::withHeaders([
-            'x-rapidapi-key' => $key1,
-            'x-rapidapi-host' => $key2,
-        ])->get('https://covid-19-data.p.rapidapi.com/country/code?code='.$par1.'&date='.$par2)->json();
 
-        dd($data);
-
-
-        $request->headers->set('x-rapidapi-key','5ae68dc990msh5919769237f8750p1c0933jsnf43267b9251b');
-        $request->headers->set('x-rapidapi-host','covid-19-data.p.rapidapi.com');
+        foreach ($countries as $value) {
+//            dd($value->code);
+            $par1 = $request->input('code',$value->code);
+//            dd($par1);
+            $data = Http::withHeaders([
+                'x-rapidapi-key' => $key1,
+                'x-rapidapi-host' => $key2,
+            ])->get('https://covid-19-data.p.rapidapi.com/country/code?code='.$par1.'&date='.$par2)->json();
+            DB::table('statistics')->updateOrInsert([
+                'country_id' => $value->id,
+                'confirmed'  => $data[0]['confirmed'],
+                'recovered' =>  $data[0]['recovered'],
+                'death' => $data[0]['deaths']
+            ]);
+            sleep(1);
+        }
 
 
 
@@ -63,17 +71,10 @@ class GetStatistics extends Command
 //        $request->header($key1);
 //        $request->header($key2);
 //        $request->headers->set($key1,$key2);
-        $http_response_header = $request->headers;
+//        $http_response_header = $request->headers;
 //        dd($http_response_header);
-
-//        $data = Http::get('https://covid-19-data.p.rapidapi.com/country/code?code='.$par1.'&date='.$par2)->json();
-//        dd($data);
-//        foreach ($data as $value) {
-//            DB::table('countries')->insert([
-//                'code'    => $value['code'],
-//                'name'   =>  json_encode($value['name']),
-//            ]);
-//        }
+//        $request->headers->set('x-rapidapi-key','5ae68dc990msh5919769237f8750p1c0933jsnf43267b9251b');
+//        $request->headers->set('x-rapidapi-host','covid-19-data.p.rapidapi.com');
         return 0;
     }
 }
