@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -26,6 +27,25 @@ class UserController extends Controller
             'token' => $token
         ];
 
-        return response($response, 201);
+        return response($response, 201)->withCookie($cookie);
+    }
+
+    public function register (Request $request) {
+        try {
+            $user = User::create(
+                [
+                    'name' => $request->input('name'),
+                    'email' => $request->input('email'),
+                    'password' => Hash::make($request->input('password')),
+                ]
+            );
+            return $user;
+        }
+        catch (\Exception $exception){
+            return response([
+                'message'=> $exception->getMessage()
+            ],400);
+        }
+
     }
 }

@@ -41,7 +41,7 @@ class GetStatistics extends Command
      */
     public function handle(Request $request)
     {
-        $currentDate = Carbon::now()->format('Y-m-d');
+        $currentDate = now()->format('Y-m-d');
 
         $countries = DB::table('countries')->select('code','id')->get();
 
@@ -51,9 +51,7 @@ class GetStatistics extends Command
 
 
         foreach ($countries as $value) {
-//            dd($value->code);
             $par1 = $request->input('code',$value->code);
-//            dd($par1);
             $data = Http::withHeaders([
                 'x-rapidapi-key' => $key1,
                 'x-rapidapi-host' => $key2,
@@ -68,16 +66,6 @@ class GetStatistics extends Command
             sleep(2);
         }
 
-
-
-//        dd($request);
-//        $request->header($key1);
-//        $request->header($key2);
-//        $request->headers->set($key1,$key2);
-//        $http_response_header = $request->headers;
-//        dd($http_response_header);
-//        $request->headers->set('x-rapidapi-key','5ae68dc990msh5919769237f8750p1c0933jsnf43267b9251b');
-//        $request->headers->set('x-rapidapi-host','covid-19-data.p.rapidapi.com');
         return 0;
     }
 }
