@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Statistics;
+use App\Models\Statistic;
 use Illuminate\Http\Request;
 
-class StatisticsApiController extends Controller
+class StatisticApiController extends Controller
 {
     public function index()
     {
-        return Statistics::all();
+        return Statistic::all();
     }
 
-    public function store()
+    public function store(Request $request)
     {
         request()->validate([
             'country_id' => 'required',
@@ -22,16 +22,16 @@ class StatisticsApiController extends Controller
 
         ]);
 
-        return Statistics::create([
-            'country_id' => request('country_id'),
-            'confirmed' => request('confirmed'),
-            'recovered' => request('recovered'),
-            'death' => request('death'),
+        return Statistic::create([
+            'country_id' => $request->country_id,
+            'confirmed' => $request->confirmed,
+            'recovered' => $request->recovered,
+            'death' => $request->death,
 
         ]);
     }
 
-    public function update(Statistics $post)
+    public function update(Statistic $post)
     {
         request()->validate([
             'country_id' => 'required',
@@ -54,11 +54,12 @@ class StatisticsApiController extends Controller
         ];
     }
 
-    public function destroy(Statistics $post)
+    public function destroy(Statistic $post)
     {
         $success = $post->delete();
 
         return [
             'success' => $success
         ];
-    }}
+    }
+}

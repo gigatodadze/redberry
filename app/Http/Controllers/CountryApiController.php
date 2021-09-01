@@ -3,29 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Countries;
+use App\Models\Country;
 
-class CountriesApiController extends Controller
+class CountryApiController extends Controller
 {
     public function index()
     {
-        return Countries::all();
+        return Country::all();
     }
 
-    public function store()
+    public function store(Request $request)
     {
         request()->validate([
             'code' => 'required',
             'name' => 'required',
         ]);
 
-        return Countries::create([
-            'code' => request('code'),
-            'name' => request('name'),
+        return Country::create([
+            'code' => $request->code,
+            'name' => $request->name,
         ]);
     }
 
-    public function update(Countries $post)
+    public function update(Country $post, Request $request)
     {
         request()->validate([
             'code' => 'required',
@@ -33,8 +33,8 @@ class CountriesApiController extends Controller
         ]);
 
         $success = $post->update([
-            'code' => request('code'),
-            'name' => request('name'),
+            'code' => $request->code,
+            'name' => $request->name,
         ]);
 
         return [
@@ -42,7 +42,7 @@ class CountriesApiController extends Controller
         ];
     }
 
-    public function destroy(Countries $post)
+    public function destroy(Country $post)
     {
         $success = $post->delete();
 

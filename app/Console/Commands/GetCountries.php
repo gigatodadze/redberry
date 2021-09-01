@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Http\Request;
 use Illuminate\Console\Command;
-use App\Models\Countries;
+use App\Models\Country;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -38,17 +39,16 @@ class GetCountries extends Command
      *
      * @return int
      */
-    public function handle(Countries $countries)
+    public function handle(Country $country, Request $request)
     {
 
         $data = Http::get('https://countries.devtest.ge/')->json();
 
-
         foreach ($data as $value) {
-              DB::table('countries')->insert([
-                'code'    => $value['code'],
-                'name'   =>  json_encode($value['name']),
-            ]);
+            $request->code = $value["code"];
+            $request->name = json_encode($value['name']);
+            $country->createCountry($request);
+
         }
         return 0;
     }

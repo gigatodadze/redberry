@@ -2,12 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Country;
+use App\Models\Statistic;
 use Illuminate\Console\Command;
-use App\Models\Countries;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+
 class GetStatistics extends Command
 {
     /**
@@ -39,30 +41,30 @@ class GetStatistics extends Command
      *
      * @return int
      */
-    public function handle(Request $request)
+    public function handle(Request $request, Statistic $statistic, Country $country)
     {
         $currentDate = now()->format('Y-m-d');
 
-        $countries = DB::table('countries')->select('code','id')->get();
+        $countries = $country->getCountries();
 
-        $key1 = $request->header('x-rapidapi-key','5ae68dc990msh5919769237f8750p1c0933jsnf43267b9251b');
-        $key2 = $request->header('x-rapidapi-host','covid-19-data.p.rapidapi.com');
-        $par2 = $request->input('date',$currentDate);
-
+        $key1 = env('X_RAPIDAPI_KEY');
+        $key2 = env('X_RAPIDAPI_HOST');
+        $par2 = $request->input('date', $currentDate);
 
         foreach ($countries as $value) {
-            $par1 = $request->input('code',$value->code);
+            $par1 = $request->input('code', $value->code);
             $data = Http::withHeaders([
                 'x-rapidapi-key' => $key1,
                 'x-rapidapi-host' => $key2,
-            ])->get('https://covid-19-data.p.rapidapi.com/country/code?code='.$par1.'&date='.$par2)->json();
-            dump($data) ;
-            DB::table('statistics')->updateOrInsert([
-                'country_id' => $value->id,
-                'confirmed'  => $data[0]['confirmed'],
-                'recovered' =>  $data[0]['recovered'],
-                'death' => $data[0]['deaths']
-            ]);
+            ])->get('https://covid-19-data.p.rapidapi.com/country/code?code=' . $par1 . '&date=' . $par2)->json();
+            dump($data);
+
+            $request->country_id = $value->id;
+            $request->confirmed = $data[0]['confirmed'];
+            $request->recovered = $data[0]['recovered'];
+            $request->death = $data[0]['deaths'];
+
+            $statistic->fetchStatistic($request);
             sleep(2);
         }
 

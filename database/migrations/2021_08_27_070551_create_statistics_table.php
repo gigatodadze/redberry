@@ -19,7 +19,8 @@ class CreateStatisticsTable extends Migration
             $table->integer('confirmed');
             $table->integer('recovered');
             $table->integer('death');
-            $table->foreign('country_id')->references('id')->on('countries') ;
+            $table->timestamps();
+            $table->foreign('country_id')->references('id')->on('countries');
         });
     }
 
