@@ -39,16 +39,13 @@ class GetCountries extends Command
      *
      * @return int
      */
-    public function handle(Country $country, Request $request)
+    public function handle()
     {
 
         $data = Http::get('https://countries.devtest.ge/')->json();
 
         foreach ($data as $value) {
-            $request->code = $value["code"];
-            $request->name = json_encode($value['name']);
-            $country->createCountry($request);
-
+            Country::create(['code' => $value["code"], 'name' => json_encode($value['name'])]);
         }
         return 0;
     }

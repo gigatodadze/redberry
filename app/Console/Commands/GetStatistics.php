@@ -41,7 +41,7 @@ class GetStatistics extends Command
      *
      * @return int
      */
-    public function handle(Request $request, Statistic $statistic, Country $country)
+    public function handle(Request $request, Country $country)
     {
         $currentDate = now()->format('Y-m-d');
 
@@ -59,12 +59,12 @@ class GetStatistics extends Command
             ])->get('https://covid-19-data.p.rapidapi.com/country/code?code=' . $par1 . '&date=' . $par2)->json();
             dump($data);
 
-            $request->country_id = $value->id;
-            $request->confirmed = $data[0]['confirmed'];
-            $request->recovered = $data[0]['recovered'];
-            $request->death = $data[0]['deaths'];
-
-            $statistic->fetchStatistic($request);
+            Statistic::firstOrCreate([
+                'country_id' => $value->id,
+                'confirmed' => $data[0]['confirmed'],
+                'recovered' => $data[0]['recovered'],
+                'death' => $data[0]['deaths'],
+            ]);
             sleep(2);
         }
 

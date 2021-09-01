@@ -11,25 +11,13 @@ class Country extends Model
 {
     use HasFactory;
 
-    protected $table = "countries";
-
-//    public $timestamps = false;
-
     protected $fillable = [
-        'code', 'name'
+        'code', 'name','updated_at','created_at'
     ];
 
     public function getCountries()
     {
         return DB::table('countries')->select('code', 'id')->get();
-    }
-
-    public function createCountry(Request $request)
-    {
-        $country = new Country();
-        $country->code = $request->code;
-        $country->name = $request->name;
-        $country->save();
     }
 
     public function statistics()
