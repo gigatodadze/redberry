@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,7 @@ class UserController extends Controller
 
     function index(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user= User::where('email', $request->email)->first();
         // print_r($data);
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response([
@@ -27,11 +28,11 @@ class UserController extends Controller
             'token' => $token
         ];
 
-        return response($response, 201);
+
+        return response($response, 200);
     }
 
-    public function register(Request $request)
-    {
+    public function register (Request $request) {
         try {
             $user = User::create(
                 [
@@ -41,11 +42,19 @@ class UserController extends Controller
                 ]
             );
             return $user;
-        } catch (\Exception $exception) {
+        }
+        catch (\Exception $exception){
             return response([
-                'message' => $exception->getMessage()
-            ], 400);
+                'message'=> $exception->getMessage()
+            ],400);
         }
 
     }
+
+        public function __invoke(Request $request){
+        if (!auth()->attempt($request->only('email','password'))){
+            throw new AuthenticationException();
+        }
+    }
+
 }
