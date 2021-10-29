@@ -1,5 +1,5 @@
 
-
+This little project fetchs statistics data from the country statistics API https://covid-19-data.p.rapidapi.com and it's syncrhonised.
 
 
 Users seeder <br>
